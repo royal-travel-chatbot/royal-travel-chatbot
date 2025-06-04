@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Royal Travel Chatbot</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f9f9f9; }
+    #chat { border: 1px solid #ccc; padding: 10px; max-height: 400px; overflow-y: auto; background: #fff; }
+    #chat p { margin: 5px 0; }
+    .user { color: blue; }
+    .bot { color: green; }
+  </style>
+</head>
+<body>
+  <h2>Royal Travel GPT 상담 챗봇</h2>
+  <div id="chat"></div>
+  <input type="text" id="input" placeholder="질문을 입력하세요..." style="width: 80%;">
+  <button onclick="sendMessage()">보내기</button>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('input');
+      const chat = document.getElementById('chat');
+      const userMessage = input.value;
+      if (!userMessage) return;
+      chat.innerHTML += '<p class="user"><strong>나:</strong> ' + userMessage + '</p>';
+      input.value = '';
+
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer YOUR_API_KEY_HERE',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "당신은 보홀 여행 전문가입니다. 친절하고 간결하게 대답해주세요." },
+            { role: "user", content: userMessage }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      const botReply = data.choices[0].message.content;
+      chat.innerHTML += '<p class="bot"><strong>챗봇:</strong> ' + botReply + '</p>';
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
